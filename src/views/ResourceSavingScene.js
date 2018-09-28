@@ -7,6 +7,7 @@ import { Screen, screensEnabled } from 'react-native-screens';
 type Props = {
   isVisible: boolean,
   children: React.Node,
+  optimizationsEnabled?: boolean,
   style?: any,
 };
 
@@ -14,11 +15,19 @@ const FAR_FAR_AWAY = 3000; // this should be big enough to move the whole view o
 
 export default class ResourceSavingScene extends React.Component<Props> {
   render() {
+
+    const {
+      isVisible,
+      optimizationsEnabled,
+      children,
+      style,
+      ...rest
+    } = this.props;
+
     if (screensEnabled()) {
       const { isVisible, ...rest } = this.props;
       return <Screen active={isVisible ? 1 : 0} {...rest} />;
     }
-    const { isVisible, children, style, ...rest } = this.props;
 
     return (
       <View
@@ -27,7 +36,9 @@ export default class ResourceSavingScene extends React.Component<Props> {
         removeClippedSubviews={
           // On iOS, set removeClippedSubviews to true only when not focused
           // This is an workaround for a bug where the clipped view never re-appears
-          Platform.OS === 'ios' ? !isVisible : true
+          Platform.OS === 'ios'
+            ? !isVisible && optimizationsEnabled
+            : optimizationsEnabled
         }
         pointerEvents={isVisible ? 'auto' : 'none'}
         {...rest}
